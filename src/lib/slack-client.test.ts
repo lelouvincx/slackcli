@@ -40,6 +40,10 @@ class TestSlackClient extends SlackClient {
       return { ok: true, channel: params.channel, ts: params.ts, text: params.text };
     }
 
+    if (method === 'chat.postMessage') {
+      return { ok: true, channel: params.channel, ts: '1234567890.123456' };
+    }
+
     throw new Error(`Unexpected method: ${method}`);
   }
 }
@@ -147,5 +151,64 @@ describe('SlackClient.updateMessage', () => {
     await client.updateMessage('C123', '1234567890.123456', 'A <https://example.com|label> B');
 
     expect(client.calls[0]!.params.parse).toBe('none');
+  });
+});
+
+describe('SlackClient.postMessage', () => {
+  it('passes native table blocks with rich-text links to chat.postMessage', async () => {
+    const client = new TestSlackClient();
+    const blocks = [{
+      type: 'table',
+      column_settings: [{ is_wrapped: true }, { align: 'right' }],
+      rows: [[
+        { type: 'raw_text', text: 'Project' },
+        {
+          type: 'rich_text',
+          elements: [{
+            type: 'rich_text_section',
+            elements: [{ type: 'link', text: 'Slack', url: 'https://slack.com' }],
+          }],
+        },
+      ]],
+    }];
+
+    await client.postMessage('C123', 'Project status table', {
+      thread_ts: '1234567890.000001',
+      blocks,
+    });
+
+    expect(client.calls).toEqual([{
+      method: 'chat.postMessage',
+      params: {
+        channel: 'C123',
+        text: 'Project status table',
+        thread_ts: '1234567890.000001',
+        blocks,
+      },
+    }]);
+  });
+
+  it('JSON-encodes blocks for browser-session form requests', async () => {
+    let body: URLSearchParams | undefined;
+    globalThis.fetch = (async (_input, init) => {
+      body = init?.body as URLSearchParams;
+      return Response.json({ ok: true, ts: '1234567890.123456' });
+    }) as typeof fetch;
+
+    const client = new SlackClient({
+      workspace_id: 'T123',
+      workspace_name: 'Test Workspace',
+      auth_type: 'browser',
+      xoxd_token: 'xoxd-test',
+      xoxc_token: 'xoxc-test',
+      workspace_url: 'https://example.slack.com',
+    });
+    const blocks = [{ type: 'table', rows: [[{ type: 'raw_text', text: 'Status' }]] }];
+
+    await client.postMessage('C123', 'Status table', { blocks });
+
+    expect(body?.get('channel')).toBe('C123');
+    expect(body?.get('text')).toBe('Status table');
+    expect(body?.get('blocks')).toBe(JSON.stringify(blocks));
   });
 });
