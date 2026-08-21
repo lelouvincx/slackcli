@@ -79,6 +79,15 @@ describe('parseBlocksInput', () => {
     expect(await parseBlocksInput(JSON.stringify(tableBlocks))).toEqual(tableBlocks);
   });
 
+  it('parses an inline native markdown block without transforming its text', async () => {
+    const markdownBlocks = [{
+      type: 'markdown',
+      text: '# Release notes\n\nSee the [runbook](https://example.com/runbook).',
+    }];
+
+    expect(await parseBlocksInput(JSON.stringify(markdownBlocks))).toEqual(markdownBlocks);
+  });
+
   it('loads blocks from an @-prefixed JSON file', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'slackcli-blocks-'));
     const path = join(dir, 'blocks.json');

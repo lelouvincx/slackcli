@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Native Block Kit messages**: `messages send --blocks <json|@file>` passes a JSON array of structured blocks to `chat.postMessage`, including Slack's native `table` block with rich-text cells. Works with standard and browser-session authentication.
+- **Native Block Kit messages**: `messages send --blocks <json|@file>` passes a JSON array of structured blocks to `chat.postMessage`, including Slack's native `table` blocks with rich-text cells and `markdown` blocks with standard Markdown. Works with standard and browser-session authentication.
 
 ## [0.9.0] - 2026-08-16
 

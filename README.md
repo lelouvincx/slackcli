@@ -365,6 +365,12 @@ slackcli messages send \
     }
   ]'
 
+# Send standard Markdown for Slack to render natively
+slackcli messages send \
+  --recipient-id=C1234567890 \
+  --message="Release notes" \
+  --blocks='[{"type":"markdown","text":"# Release notes\n\n- [x] Build\n- [ ] Deploy\n\nSee the [runbook](https://example.com/runbook)."}]'
+
 # Edit an existing message you posted
 slackcli messages edit --channel-id=C1234567890 --timestamp=1234567890.123456 --message="Corrected message"
 
@@ -389,7 +395,7 @@ slackcli messages send --permalink="https://myteam.slack.com/archives/C123456789
 
 File uploads require Slack workspace permissions that allow file upload, such as `files:write` for standard Slack app tokens.
 
-`--blocks` accepts a JSON array of [Block Kit blocks](https://docs.slack.dev/reference/block-kit/blocks/), including native [`table` blocks](https://docs.slack.dev/reference/block-kit/blocks/table-block/). Pass JSON inline as above, or store the array in a file and use `--blocks=@blocks.json`. The required `--message` text is used as the notification and accessibility fallback. Structured blocks work with both standard Slack tokens and browser-session authentication. When `--file` is supplied, SlackCLI preserves the existing file-upload behavior and does not use `--blocks`.
+`--blocks` accepts a JSON array of [Block Kit blocks](https://docs.slack.dev/reference/block-kit/blocks/), including native [`table` blocks](https://docs.slack.dev/reference/block-kit/blocks/table-block/) and [`markdown` blocks](https://docs.slack.dev/reference/block-kit/blocks/markdown-block/). Native markdown blocks use standard Markdown rather than Slack mrkdwn and support features such as headings, task lists, syntax-highlighted code blocks, and Markdown tables. Pass JSON inline as above, or store the array in a file and use `--blocks=@blocks.json`. The required `--message` text is used as the notification and accessibility fallback. Structured blocks work with both standard Slack tokens and browser-session authentication. When `--file` is supplied, SlackCLI preserves the existing file-upload behavior and does not use `--blocks`.
 
 Editing only works on messages posted by the authenticated user or app; ephemeral messages cannot be edited.
 

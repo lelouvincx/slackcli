@@ -188,6 +188,25 @@ describe('SlackClient.postMessage', () => {
     }]);
   });
 
+  it('passes native markdown blocks to chat.postMessage unchanged', async () => {
+    const client = new TestSlackClient();
+    const blocks = [{
+      type: 'markdown',
+      text: '# Release notes\n\nSee the [runbook](https://example.com/runbook).',
+    }];
+
+    await client.postMessage('C123', 'Release notes', { blocks });
+
+    expect(client.calls[0]).toEqual({
+      method: 'chat.postMessage',
+      params: {
+        channel: 'C123',
+        text: 'Release notes',
+        blocks,
+      },
+    });
+  });
+
   it('JSON-encodes blocks for browser-session form requests', async () => {
     let body: URLSearchParams | undefined;
     globalThis.fetch = (async (_input, init) => {
