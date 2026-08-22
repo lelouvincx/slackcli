@@ -28,6 +28,23 @@ describe('messages command', () => {
     expect(longOptions('send')).toContain('--blocks');
   });
 
+  it('rejects --blocks with --file rather than silently dropping the blocks', async () => {
+    const command = createMessagesCommand();
+    command.commands.find((candidate) => candidate.name() === 'send')!
+      .exitOverride()
+      .configureOutput({ writeErr: () => {} });
+
+    await expect(command.parseAsync([
+      'send',
+      '--recipient-id=C123',
+      '--message=Fallback text',
+      '--file=report.txt',
+      '--blocks=[]',
+    ], { from: 'user' })).rejects.toThrow(
+      "option '--blocks <json|@file>' cannot be used with option '--file <path>'"
+    );
+  });
+
   it('exposes an edit subcommand taking channel, timestamp, and message', () => {
     expect(subcommand('edit')).toBeDefined();
     expect(longOptions('edit')).toContain('--channel-id');

@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import ora from 'ora';
 import { readFile } from 'node:fs/promises';
 import { getAuthenticatedClient } from '../lib/auth.ts';
@@ -69,7 +69,10 @@ export function createMessagesCommand(): Command {
     .option('--thread-ts <timestamp>', 'Send as reply to thread')
     .option('--permalink <url>', 'Slack message link; replies in that message\'s thread (replaces --recipient-id and --thread-ts)')
     .option('--file <path>', 'Attach a file to the message')
-    .option('--blocks <json|@file>', 'Block Kit JSON array, inline or loaded from @file')
+    .addOption(
+      new Option('--blocks <json|@file>', 'Block Kit JSON array, inline or loaded from @file')
+        .conflicts('file')
+    )
     .option('--workspace <id|name>', 'Workspace to use')
     .action(async (options) => {
       const spinner = ora('Sending message...').start();
